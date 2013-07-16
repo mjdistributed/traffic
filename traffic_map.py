@@ -1,5 +1,7 @@
 from sets import Set
 from math import *
+from copy import copy
+
 
 
 
@@ -10,14 +12,22 @@ class Intersection:
 		neighbors = Set()
 		self.x = 0
 		self.y = 0
+		self.light = "red"
 
 	def __init__(self, x, y):
 		neighbors = Set()
 		self.x = x
 		self.y = y
+		self.light = "red"
 
 	def getDistance(self, other):
 		return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
+
+	def switch_signal(self):
+		if(self.light == "red"):
+			self.light = "green"
+		else:
+			self.light = "red"
 
 class Path:
 	"""2 Intersections & the distance between them"""
@@ -108,9 +118,18 @@ class LeftDirection:
 class TrafficGraph:
 	def __init__(self, roads, road_segments, intersections, cars):
 		self.roads = roads
-		slef.road_segments = road_segments,
+		self.road_segments = road_segments,
 		self.intersections = intersections
 		self.cars = cars
+
+
+
+	def copy(self):
+		roads_copy = copy(self.roads)
+		road_segments_copy = copy(self.road_segments)
+		intersections_copy = copy(self.intersections)
+		cars_copy = copy(self.cars)
+		return TrafficGraph(roads_copy, road_segments_copy, intersections_copy, cars_copy)
 
 
 
