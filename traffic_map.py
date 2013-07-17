@@ -9,13 +9,11 @@ class Intersection:
 	"""An intersection on a trafic map"""
 
 	def __init__(self):
-		neighbors = Set()
 		self.x = 0
 		self.y = 0
 		self.light = "red"
 
 	def __init__(self, x, y):
-		neighbors = Set()
 		self.x = x
 		self.y = y
 		self.light = "red"
@@ -28,6 +26,15 @@ class Intersection:
 			self.light = "green"
 		else:
 			self.light = "red"
+
+	def next_segment(self, from_segment, which_way):
+		if(which_way == "straight"):
+			for road_seg in self.cross_road_segments:
+				if(road_seg.road == from_segment.road and road_seg != from_segment):
+					return road_seg
+			raise Exception("couldn't find cross road")
+		else:
+			raise Exception("unsupported!!")
 
 class Path:
 	"""2 Intersections & the distance between them"""
@@ -59,7 +66,7 @@ class Road_Segment:
 	"""A road on a traffic map"""
 
 	def __init__(self):
-		self.intersections = Set()
+		self.endpoints = Set()
 
 	def __init__(self, endpoints):
 		self.endpoints = endpoints
@@ -74,7 +81,7 @@ class Road_Segment:
 		self.endpoints = endpoints
 
 	def get_endpoints(self):
-		return self.intersections
+		return self.endpoints
 
 	def get_road(self):
 		return self.road
@@ -96,6 +103,20 @@ class Road_Segment:
 				return curr_position - 1
 			else:
 				return 0
+
+	def get_intersection(self, curr_position):
+		if(curr_position != self.length and curr_position != 0):
+			raise Exception("error in get_intersection: curr_position is not at an intersection")
+		if(curr_position == 0):
+			return self.endpoints[0]
+		else:
+			return self.endpoints[1]
+
+	def is_at_intersection(self, curr_position):
+		if(curr_position == self.length or curr_position == 0):
+			return True
+		else:
+			return False
 
 class RightDirection:
 	"""either right or left"""
