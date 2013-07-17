@@ -8,15 +8,11 @@ from copy import copy
 class Intersection:
 	"""An intersection on a trafic map"""
 
-	def __init__(self):
-		self.x = 0
-		self.y = 0
-		self.light = "red"
-
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
 		self.light = "red"
+		self.cross_road_segments = set([])
 
 	def getDistance(self, other):
 		return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
@@ -35,6 +31,9 @@ class Intersection:
 			raise Exception("couldn't find cross road")
 		else:
 			raise Exception("unsupported!!")
+
+	def __str__(self):
+		return "Intersection at (" + str(self.x) + ", " + str(self.y) + ")"
 
 class Path:
 	"""2 Intersections & the distance between them"""
@@ -65,12 +64,6 @@ class Road:
 class Road_Segment:
 	"""A road on a traffic map"""
 
-	def __init__(self):
-		self.endpoints = Set()
-
-	def __init__(self, endpoints):
-		self.endpoints = endpoints
-
 	def __init__(self, road, endpoints):
 		self.road = road
 		self.endpoints = endpoints
@@ -91,14 +84,14 @@ class Road_Segment:
 
 	def get_next_position(self, curr_position, direction):
 		"""RightDirection goes in positive dir, LeftDirection goes in negative dir"""
-		if isinstance(direction, RightDirection):
-			print("moving right...")
+		if direction.dir() == "right":
+			print("here")
 			if(curr_position < self.length):
 				return curr_position + 1
 			else:
 				return curr_position
 		else:
-			print("moving left...")
+			print("uhoh")
 			if(curr_position > 0):
 				return curr_position - 1
 			else:
@@ -118,6 +111,9 @@ class Road_Segment:
 		else:
 			return False
 
+	def __str__(self):
+		return "road segment of road '" + str(self.road) + "' with endpoints " + str(self.endpoints[0]) + " and " + str(self.endpoints[1])
+
 class RightDirection:
 	"""either right or left"""
 
@@ -127,6 +123,9 @@ class RightDirection:
 	def __str__(self):
 		return "RightDirection on " + str(self.road)
 
+	def dir(self):
+		return "right"
+
 
 class LeftDirection:
 	def __init__(self, road):
@@ -134,6 +133,9 @@ class LeftDirection:
 
 	def __str__(self):
 		return "LeftDirection on " + str(self.road)
+
+	def dir(self):
+		return "left"
 
 
 class TrafficGraph:

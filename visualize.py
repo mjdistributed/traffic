@@ -6,23 +6,23 @@ class Visualize:
 			for j in range(square_size + 1):
 				mat[i].append("") 
 		for car in traffic_graph.cars:
-			x_pos = 0
-			y_pos = 0
+			row = 0
+			column = 0
 			if(get_orientation(car.road_segment) == "vertical"):
-				x_pos = car.road_segment.endpoints[0].x
-				y_pos = car.road_segment.endpoints[0].y + car.road_position
+				row = car.road_segment.endpoints[0].x + car.road_position
+				column = car.road_segment.endpoints[0].y
 			else:
-				y_pos = car.road_segment.endpoints[0].y
-				x_pos = car.road_segment.endpoints[0].x + car.road_position
-			print("car pos: " + str(x_pos) + ", " + str(y_pos))
-			mat[y_pos][x_pos] = "0"
+				column = car.road_segment.endpoints[0].y + car.road_position
+				row = car.road_segment.endpoints[0].x
+			print("car pos: " + str(row) + ", " + str(column))
+			mat[row][column] = "0"
 		for intersection in traffic_graph.intersections:
-			x_pos = intersection.x
-			y_pos = intersection.y
+			row = intersection.x
+			column = intersection.y
 			if(intersection.light == "green"):
-				mat[y_pos][x_pos] = "G"
+				mat[row][column] = "G"
 			else:
-				mat[y_pos][x_pos] = "R"
+				mat[row][column] = "R"
 		#print
 		for ray in mat:
 			print(ray)
