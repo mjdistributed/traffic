@@ -74,3 +74,6 @@ class Car:
 				if(curr_intersection.light == "green"):
 					return 0
 		return self.waiting_time
+
+	def copy(self):
+		return Car(self.road_segment, self.road_position, self.maxSpeed, self.direction)

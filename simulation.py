@@ -52,16 +52,20 @@ def score_solution(trafficGraph_sequence):
 
 def perturb(trafficGraph):
 	print("perturbing")
-	min_score = score(trafficGraph)
-	for traffic_light in trafficGraph.intersections:
+	look_ahead = trafficGraph.copy()
+	for car in look_ahead.cars:
+		car.act()
+	min_score = score(look_ahead)
+	for traffic_light in look_ahead.intersections:
 		print("checking traffic light at (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
 		traffic_light.switch_signal()
-		curr_score = score(trafficGraph)
+		curr_score = score(look_ahead)
 		if(curr_score < min_score):
 			min_score = curr_score
 			print("optimal tlight is (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
 		else:
 			traffic_light.switch_signal()
+	trafficGraph.intersections = look_ahead.intersections
 	trafficGraph
 
 
@@ -69,19 +73,23 @@ def solve_it():
 	vis = Visualize()
 	print("solving...")
 	trafficGraph = setup()
-	num_states = 16#60*24
+	num_states = 45#60*24
 	num_iters = 1
 	states = list()
 	for i in range(num_states):
-		states.append(trafficGraph.copy())
+		newState = trafficGraph.copy()
+		newState.cars = trafficGraph.cars #we want cars to persist across states
+		states.append(newState)
+	file = open("test_file.txt", "w")
 	for i in range(num_iters):
-		for currGraph in states:
+ 		for currGraph in states:
 			perturb(currGraph)
+			vis.draw(currGraph, 10, file)
 			for car in trafficGraph.cars:
 				car.act()
-			vis.draw(currGraph, 10)
 		for car in trafficGraph.cars:
 			car.reset_position()
+	file.close()
 	return states
 
 
