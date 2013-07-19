@@ -85,13 +85,11 @@ class Road_Segment:
 	def get_next_position(self, curr_position, direction):
 		"""RightDirection goes in positive dir, LeftDirection goes in negative dir"""
 		if direction.dir() == "right":
-			print("here")
 			if(curr_position < self.length):
 				return curr_position + 1
 			else:
 				return curr_position
 		else:
-			print("uhoh")
 			if(curr_position > 0):
 				return curr_position - 1
 			else:
@@ -151,7 +149,9 @@ class TrafficGraph:
 		roads_copy = copy(self.roads)
 		road_segments_copy = copy(self.road_segments)
 		intersections_copy = copy(self.intersections)
-		cars_copy = copy(self.cars)
+		cars_copy = set([])
+		for car in self.cars:
+			cars_copy.add(car.copy())
 		return TrafficGraph(roads_copy, road_segments_copy, intersections_copy, cars_copy)
 
 
