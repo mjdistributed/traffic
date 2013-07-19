@@ -21,7 +21,7 @@ class Visualize:
 					column = car.road_segment.endpoints[0].y + car.road_position
 				row = car.road_segment.endpoints[0].x
 			print("car pos: " + str(row) + ", " + str(column))
-			mat[row][column] = "0"
+			mat[row][column] += "0"
 		for intersection in traffic_graph.intersections:
 			row = intersection.x
 			column = intersection.y

@@ -28,9 +28,11 @@ def setup():
 	road_segments = set([top_road_seg, right_road_seg, left_road_seg, bottom_road_seg])
 	intersections = set([origin, top_right, bottom_right, bottom_left])
 
-	dir = RightDirection(square_road)
-	car1 = Car(top_road_seg, 8, 10, dir)
-	cars = set([car1])
+	dir1 = LeftDirection(square_road)
+	dir2 = RightDirection(square_road)
+	car1 = Car(top_road_seg, 2, 10, dir1)
+	car2 = Car(bottom_road_seg, 2, 10, dir2)
+	cars = set([car1, car2])
 	return TrafficGraph(road_set, road_segments, intersections, cars)
 
 
