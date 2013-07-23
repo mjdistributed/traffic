@@ -25,10 +25,17 @@ class Visualize:
 		for intersection in traffic_graph.intersections:
 			row = intersection.x
 			column = intersection.y
-			if(intersection.light == "green"):
-				mat[row][column] += "G"
+			print("intersection: " + str(intersection.light))
+			if "green" in intersection.light:
+				index = intersection.light.index("green")
+				green_segment = intersection.cross_road_segments[index]
+				if(get_orientation(green_segment) == "horizontal"):
+					mat[row][column] += "|"
+				else:
+					mat[row][column] += "--"
 			else:
-				mat[row][column] += "R"
+				mat[row][column] += "X"
+
 		#print
 		for ray in mat:
 			print(ray)

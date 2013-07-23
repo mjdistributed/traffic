@@ -2,26 +2,43 @@ from sets import Set
 from math import *
 from copy import copy
 
-
-
-
 class Intersection:
 	"""An intersection on a trafic map"""
 
-	def __init__(self, x, y):
+	def __init__(self, x, y, cross_road_segments = None):
 		self.x = x
 		self.y = y
-		self.light = "red"
-		self.cross_road_segments = set([])
+		if(cross_road_segments == None):
+			self.cross_road_segments = list()
+		else:
+			self.cross_road_segments = cross_road_segments
+		self.light = list()
+		for i in range(len(self.cross_road_segments)):
+			self.light.append("red")
+
+	def set_cross_road_segments(self, cross_road_segments):
+		self.cross_road_segments = cross_road_segments
+		self.light = list()
+		for i in range(len(self.cross_road_segments)):
+			self.light.append("red")
 
 	def getDistance(self, other):
 		return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
 
-	def switch_signal(self):
-		if(self.light == "red"):
-			self.light = "green"
+	def switch_signal(self, road_segment):
+		index = self.cross_road_segments.index(road_segment)
+		if(index < 0 or index >= len(self.cross_road_segments)):
+			raise Exception("error: road segment doesn't got through intersection")
+		if(self.light[index] == "red"):
+			self.light[index] = "green"
+			for i in range(len(self.cross_road_segments)):
+				if(i != index):
+					self.light[i] = "red"
 		else:
-			self.light = "red"
+			self.light[index] = "red"
+
+	def get_light(self, road_segment):
+		return self.light[self.cross_road_segments.index(road_segment)]
 
 	def next_segment(self, from_segment, which_way):
 		if(which_way == "straight"):
@@ -31,6 +48,11 @@ class Intersection:
 			raise Exception("couldn't find cross road")
 		else:
 			raise Exception("unsupported!!")
+
+	def copy(self):
+		inter_copy = Intersection(copy(self.x), copy(self.y), copy(self.cross_road_segments))
+		inter_copy.light = copy(self.light)
+		return inter_copy
 
 	def __str__(self):
 		return "Intersection at (" + str(self.x) + ", " + str(self.y) + ")"
@@ -45,7 +67,6 @@ class Path:
 
 class Road:
 	"""A road on a traffic map"""
-
 
 	def __init__(self, name, intersections):
 		self.directions = (LeftDirection(self), RightDirection(self))
@@ -148,7 +169,7 @@ class TrafficGraph:
 	def copy(self):
 		roads_copy = copy(self.roads)
 		road_segments_copy = copy(self.road_segments)
-		intersections_copy = copy(self.intersections)
+		intersections_copy = self.intersections.copy()
 		cars_copy = set([])
 		for car in self.cars:
 			cars_copy.add(car.copy())
