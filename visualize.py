@@ -30,9 +30,10 @@ class Visualize:
 				index = intersection.light.index("green")
 				green_segment = intersection.cross_road_segments[index]
 				if(get_orientation(green_segment) == "horizontal"):
-					mat[row][column] += "|"
-				else:
 					mat[row][column] += "--"
+				else:
+					mat[row][column] += "|"
+				print(get_orientation(green_segment))
 			else:
 				mat[row][column] += "X"
 

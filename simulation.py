@@ -54,11 +54,11 @@ def cross_road_setup():
 	left_road_seg = Road_Segment(horiz_road, [left, middle])
 	right_road_seg = Road_Segment(horiz_road, [middle, right])
 
-	top.cross_road_segments = list([top_road_seg])
-	bottom.cross_road_segments = list([bottom_road_seg])
-	left.cross_road_segments = list([left_road_seg])
-	right.cross_road_segments = list([right_road_seg])
-	middle.cross_road_segments = list([top_road_seg, bottom_road_seg, left_road_seg, right_road_seg])
+	top.set_cross_road_segments(list([top_road_seg]))
+	bottom.set_cross_road_segments(list([bottom_road_seg]))
+	left.set_cross_road_segments(list([left_road_seg]))
+	right.set_cross_road_segments(list([right_road_seg]))
+	middle.set_cross_road_segments(list([top_road_seg, bottom_road_seg, left_road_seg, right_road_seg]))
 
 	road_segments = set([top_road_seg, bottom_road_seg, left_road_seg, right_road_seg])
 	intersections = set([top, middle, bottom, left, right])
@@ -67,8 +67,9 @@ def cross_road_setup():
 	dir2 = RightDirection(horiz_road)
 	car1 = Car(top_road_seg, 0, 10, dir1)
 	car2 = Car(left_road_seg, 0, 10, dir2)
+	car3 = Car(left_road_seg, 0, 10, dir2)
 
-	cars = set([car1, car2])
+	cars = set([car1, car2, car3])
 	return TrafficGraph(road_set, road_segments, intersections, cars)
 
 
@@ -112,7 +113,7 @@ def perturb(trafficGraph):
 def solve_it():
 	vis = Visualize()
 	print("solving...")
-	trafficGraph = square_setup()
+	trafficGraph = cross_road_setup()
 	num_states = 11#45#60*24
 	num_iters = 1
 	states = list()
