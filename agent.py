@@ -14,7 +14,6 @@ class Car:
 			self.direction = direction
 		else:
 			self.direction = random.choice(road_segment.road.directions)
-			print("direction: " + str(self.direction))
 		if(maxSpeed is not None):
 			self.maxSpeed = maxSpeed
 		if(road_position is not None):
@@ -24,7 +23,6 @@ class Car:
 		self.start_position = copy(self.road_position)
 		self.start_direction = copy(self.direction)
 		self.start_road_segment = (self.road_segment)
-		print("initialized car w/ direction " + str(self.direction))
 
 	def act(self):
 		for i in range(0, self.speed):
@@ -34,7 +32,8 @@ class Car:
 				if(self.road_segment.is_at_intersection(new_position)):
 					curr_intersection = self.road_segment.get_intersection(self.road_position)
 					#go through the intersection if green
-					if(curr_intersection.light == "green"):
+					print(curr_intersection.get_light(self.road_segment))
+					if(curr_intersection.get_light(self.road_segment) == "green"):
 						print("green!!!!")
 						self.waiting_time = 0
 						#turn or go straight
