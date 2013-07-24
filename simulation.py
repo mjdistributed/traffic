@@ -4,7 +4,7 @@ from traffic_map import *
 from agent import *
 from visualize import *
 
-def setup():
+def square_setup():
 	print("setting up ...")
 	#setup
 	origin = Intersection(0, 0)
@@ -19,11 +19,15 @@ def setup():
 	left_road_seg = Road_Segment(square_road, [bottom_left, origin])
 	bottom_road_seg = Road_Segment(square_road, [bottom_right, bottom_left])
 
-	origin.cross_road_segments = set([top_road_seg, left_road_seg])
-	top_right.cross_road_segments = set([top_road_seg, right_road_seg])
-	print(top_right.cross_road_segments)
-	bottom_right.cross_road_segments = set([right_road_seg, bottom_road_seg])
-	bottom_left.cross_road_segments = set([bottom_road_seg, left_road_seg])
+	origin.set_cross_road_segments(list([left_road_seg, top_road_seg]))
+	top_right.set_cross_road_segments(list([top_road_seg, right_road_seg]))
+	bottom_right.set_cross_road_segments(list([right_road_seg, bottom_road_seg]))
+	bottom_left.set_cross_road_segments(list([bottom_road_seg, left_road_seg]))
+
+	#origin.cross_road_segments = set([top_road_seg, left_road_seg])
+	#top_right.cross_road_segments = set([top_road_seg, right_road_seg])
+	#bottom_right.cross_road_segments = set([right_road_seg, bottom_road_seg])
+	#bottom_left.cross_road_segments = set([bottom_road_seg, left_road_seg])
 
 	road_segments = set([top_road_seg, right_road_seg, left_road_seg, bottom_road_seg])
 	intersections = set([origin, top_right, bottom_right, bottom_left])
@@ -35,14 +39,50 @@ def setup():
 	cars = set([car1, car2])
 	return TrafficGraph(road_set, road_segments, intersections, cars)
 
+def cross_road_setup():
+	top = Intersection(0, 5)
+	bottom = Intersection(10, 5)
+	left = Intersection(5, 0)
+	right = Intersection(5, 10)
+	middle = Intersection(5, 5)
+
+	vert_road = Road("vertical road", set([top, middle, bottom]))
+	horiz_road = Road("horizontal road", set([left, middle, right]))
+	road_set = set([vert_road, horiz_road])
+	top_road_seg = Road_Segment(vert_road, [top, middle])
+	bottom_road_seg = Road_Segment(vert_road, [middle, bottom])
+	left_road_seg = Road_Segment(horiz_road, [left, middle])
+	right_road_seg = Road_Segment(horiz_road, [middle, right])
+
+	top.set_cross_road_segments(list([top_road_seg]))
+	bottom.set_cross_road_segments(list([bottom_road_seg]))
+	left.set_cross_road_segments(list([left_road_seg]))
+	right.set_cross_road_segments(list([right_road_seg]))
+	middle.set_cross_road_segments(list([top_road_seg, bottom_road_seg, left_road_seg, right_road_seg]))
+
+	road_segments = set([top_road_seg, bottom_road_seg, left_road_seg, right_road_seg])
+	intersections = set([top, middle, bottom, left, right])
+
+	dir1 = RightDirection(vert_road)
+	dir2 = RightDirection(horiz_road)
+	car1 = Car(top_road_seg, 0, 10, dir1)
+	car2 = Car(left_road_seg, 0, 10, dir2)
+	car3 = Car(left_road_seg, 0, 10, dir2)
+
+	cars = set([car1, car2, car3])
+	return TrafficGraph(road_set, road_segments, intersections, cars)
+
 
 def painFunction(waiting_time):
 	return pow(waiting_time, 2)
 
 
 def score(trafficGraph):
+	look_ahead = trafficGraph.copy()
+	for car in look_ahead.cars:
+		car.act()
 	penalty = 0
-	for car in trafficGraph.cars:
+	for car in look_ahead.cars:
 		waiting_time = car.will_be_waiting()
 		penalty += painFunction(waiting_time)
 	return penalty
@@ -54,28 +94,27 @@ def score_solution(trafficGraph_sequence):
 
 def perturb(trafficGraph):
 	print("perturbing")
-	look_ahead = trafficGraph.copy()
-	for car in look_ahead.cars:
-		car.act()
-	min_score = score(look_ahead)
-	for traffic_light in look_ahead.intersections:
+	min_score = score(trafficGraph)
+	for traffic_light in trafficGraph.intersections:
 		print("checking traffic light at (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
-		traffic_light.switch_signal()
-		curr_score = score(look_ahead)
-		if(curr_score < min_score):
-			min_score = curr_score
-			print("optimal tlight is (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
-		else:
-			traffic_light.switch_signal()
-	trafficGraph.intersections = look_ahead.intersections
+		for cross_road_segment in traffic_light.cross_road_segments:
+			prev_state = copy(traffic_light.light)
+			traffic_light.switch_signal(cross_road_segment)
+			print(traffic_light.light)
+			curr_score = score(trafficGraph)
+			if(curr_score < min_score):
+				min_score = curr_score
+				print("optimal tlight is (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
+			else:
+				traffic_light.light = prev_state
 	trafficGraph
 
 
 def solve_it():
 	vis = Visualize()
 	print("solving...")
-	trafficGraph = setup()
-	num_states = 45#60*24
+	trafficGraph = cross_road_setup()
+	num_states = 11#45#60*24
 	num_iters = 1
 	states = list()
 	for i in range(num_states):
