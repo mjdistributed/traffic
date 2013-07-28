@@ -73,7 +73,7 @@ def cross_road_setup():
 	return TrafficGraph(road_set, road_segments, intersections, cars)
 
 def more_complex_graph_setup():
-	vert_road_len = horiz_road_len = 20
+	vert_road_len = horiz_road_len = 40
 	intersection_density = 3
 	intersections = list()
 	for i in range(vert_road_len + 1):
@@ -112,23 +112,10 @@ def more_complex_graph_setup():
 		intersection.set_cross_road_segments(cross_road_segments)
 
 	cars = set()
-
-	#set directions & cars for vertical roads
-	for road_seg in filter(lambda seg: seg.endpoints[0].x == 0 and seg.endpoints[0].y == seg.endpoints[1].y, road_segments):
-		direction = RightDirection(roads[i])
-		cars.add(Car(road_seg, 0, 10, direction))
-	#set directions & cars for horiz roads
-	for road_seg in filter(lambda seg: seg.endpoints[0].y == 0 and seg.endpoints[0].x == seg.endpoints[1].x, road_segments):
-		direction = RightDirection(roads[i])
-		cars.add(Car(road_seg, 0, 10, direction))
-
-	#print(map(str, cars))
-
-	return TrafficGraph(roads, road_segments, set(intersections), cars)
-
-
-
-
+	trafficGraph = TrafficGraph(roads, road_segments, set(intersections), set())
+	add_new_cars(trafficGraph, 0)
+	add_new_cars(trafficGraph, 3)
+	return trafficGraph
 
 
 def painFunction(waiting_time):
@@ -154,15 +141,12 @@ def perturb(trafficGraph):
 	print("perturbing")
 	min_score = score(trafficGraph)
 	for traffic_light in trafficGraph.intersections:
-		print("checking traffic light at (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
 		for cross_road_segment in traffic_light.cross_road_segments:
 			prev_state = copy(traffic_light.light)
 			traffic_light.switch_signal(cross_road_segment)
-			print(traffic_light.light)
 			curr_score = score(trafficGraph)
 			if(curr_score < min_score):
 				min_score = curr_score
-				print("optimal tlight is (" + str(traffic_light.x) + ", " + str(traffic_light.y) + ")") 
 			else:
 				traffic_light.light = prev_state
 	trafficGraph
@@ -172,7 +156,7 @@ def solve_it():
 	vis = Visualize()
 	print("solving...")
 	trafficGraph = more_complex_graph_setup()
-	num_states = 23#45#60*24
+	num_states = 20#45#60*24
 	num_iters = 1
 	states = list()
 	for i in range(num_states):
@@ -183,13 +167,26 @@ def solve_it():
 	for i in range(num_iters):
  		for currGraph in states:
 			perturb(currGraph)
-			vis.draw(currGraph, 20, file)
+			vis.draw(currGraph, 40, file)
 			for car in trafficGraph.cars:
 				car.act()
 		for car in trafficGraph.cars:
 			car.reset_position()
 	file.close()
 	return states
+
+
+def add_new_cars(trafficGraph, starting_pos):
+	"""Adds a new car at the start of each road segment in the graph"""
+	road_segments = list(trafficGraph.road_segments)
+	#set directions & cars for vertical roads
+	for road_seg in filter(lambda seg: seg.endpoints[0].x == starting_pos and seg.endpoints[0].y == seg.endpoints[1].y, road_segments):
+		direction = RightDirection(road_seg.road)
+		trafficGraph.cars.add(Car(road_seg, starting_pos, 10, direction))
+	#set directions & cars for horiz roads
+	for road_seg in filter(lambda seg: seg.endpoints[0].y == starting_pos and seg.endpoints[0].x == seg.endpoints[1].x, road_segments):
+		direction = RightDirection(road_seg.road)
+		trafficGraph.cars.add(Car(road_seg, starting_pos, 10, direction))
 
 
 print("running...")

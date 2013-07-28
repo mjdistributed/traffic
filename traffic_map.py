@@ -160,7 +160,7 @@ class LeftDirection:
 class TrafficGraph:
 	def __init__(self, roads, road_segments, intersections, cars):
 		self.roads = roads
-		self.road_segments = road_segments,
+		self.road_segments = road_segments
 		self.intersections = intersections
 		self.cars = cars
 
