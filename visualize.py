@@ -20,12 +20,10 @@ class Visualize:
 				else:
 					column = car.road_segment.endpoints[0].y + car.road_position
 				row = car.road_segment.endpoints[0].x
-			print("car pos: " + str(row) + ", " + str(column))
 			mat[row][column] += "0"
 		for intersection in traffic_graph.intersections:
 			row = intersection.x
 			column = intersection.y
-			print("intersection: " + str(intersection.light))
 			if "green" in intersection.light:
 				index = intersection.light.index("green")
 				green_segment = intersection.cross_road_segments[index]
@@ -33,7 +31,6 @@ class Visualize:
 					mat[row][column] += "--"
 				else:
 					mat[row][column] += "|"
-				print(get_orientation(green_segment))
 			else:
 				mat[row][column] += "X"
 

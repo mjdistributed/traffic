@@ -72,6 +72,64 @@ def cross_road_setup():
 	cars = set([car1, car2, car3])
 	return TrafficGraph(road_set, road_segments, intersections, cars)
 
+def more_complex_graph_setup():
+	vert_road_len = horiz_road_len = 20
+	intersection_density = 3
+	intersections = list()
+	for i in range(vert_road_len + 1):
+		for j in range(horiz_road_len + 1):
+			if(i%intersection_density == 0 and j%intersection_density == 0):
+				intersections.append(Intersection(i, j))
+
+	roads = list()
+	for i in range(vert_road_len + 1):
+		if(i % intersection_density == 0):
+			roads.append(Road("vert road " + str(i), filter(lambda inter: inter.y == i, intersections)))
+	for i in range(horiz_road_len + 1):
+		if(i % intersection_density == 0):
+			roads.append(Road("horiz road " + str(i), filter(lambda inter: inter.x == i, intersections)))
+
+	road_segments = set()
+	#add horiz road segments
+	for road_index in range(len(roads)/2, len(roads)):
+		curr_intersections = roads[road_index].intersections
+		for i in range(1, len(curr_intersections)):
+			new_road_seg = Road_Segment(roads[road_index], list([curr_intersections[i-1], curr_intersections[i]]))
+			road_segments.add(new_road_seg)
+	#add vertical road segments
+	for road_index in range(len(roads)/2):
+		curr_intersections = roads[road_index].intersections
+		for i in range(1, len(curr_intersections)):
+			new_road_seg = Road_Segment(roads[road_index], list([curr_intersections[i-1], curr_intersections[i]]))
+			road_segments.add(new_road_seg)
+	
+	#set cross-road segments on each intersection
+	for intersection in intersections:
+		cross_road_segments = list()
+		for road_seg in road_segments:
+			if intersection in road_seg.endpoints:
+				cross_road_segments.append(road_seg)
+		intersection.set_cross_road_segments(cross_road_segments)
+
+	cars = set()
+
+	#set directions & cars for vertical roads
+	for road_seg in filter(lambda seg: seg.endpoints[0].x == 0 and seg.endpoints[0].y == seg.endpoints[1].y, road_segments):
+		direction = RightDirection(roads[i])
+		cars.add(Car(road_seg, 0, 10, direction))
+	#set directions & cars for horiz roads
+	for road_seg in filter(lambda seg: seg.endpoints[0].y == 0 and seg.endpoints[0].x == seg.endpoints[1].x, road_segments):
+		direction = RightDirection(roads[i])
+		cars.add(Car(road_seg, 0, 10, direction))
+
+	#print(map(str, cars))
+
+	return TrafficGraph(roads, road_segments, set(intersections), cars)
+
+
+
+
+
 
 def painFunction(waiting_time):
 	return pow(waiting_time, 2)
@@ -113,8 +171,8 @@ def perturb(trafficGraph):
 def solve_it():
 	vis = Visualize()
 	print("solving...")
-	trafficGraph = cross_road_setup()
-	num_states = 11#45#60*24
+	trafficGraph = more_complex_graph_setup()
+	num_states = 23#45#60*24
 	num_iters = 1
 	states = list()
 	for i in range(num_states):
@@ -125,7 +183,7 @@ def solve_it():
 	for i in range(num_iters):
  		for currGraph in states:
 			perturb(currGraph)
-			vis.draw(currGraph, 10, file)
+			vis.draw(currGraph, 20, file)
 			for car in trafficGraph.cars:
 				car.act()
 		for car in trafficGraph.cars:
