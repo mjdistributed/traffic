@@ -29,7 +29,6 @@ class Intersection:
 		index = self.cross_road_segments.index(road_segment)
 		if(index < 0 or index >= len(self.cross_road_segments)):
 			raise Exception("error: road segment doesn't got through intersection")
-		print(self.light)
 		if(self.light[index] == "red"):
 			self.light[index] = "green"
 			for i in range(len(self.cross_road_segments)):
@@ -161,7 +160,7 @@ class LeftDirection:
 class TrafficGraph:
 	def __init__(self, roads, road_segments, intersections, cars):
 		self.roads = roads
-		self.road_segments = road_segments,
+		self.road_segments = road_segments
 		self.intersections = intersections
 		self.cars = cars
 

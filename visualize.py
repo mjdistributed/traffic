@@ -20,12 +20,10 @@ class Visualize:
 				else:
 					column = car.road_segment.endpoints[0].y + car.road_position
 				row = car.road_segment.endpoints[0].x
-			print("car pos: " + str(row) + ", " + str(column))
 			mat[row][column] += "0"
 		for intersection in traffic_graph.intersections:
 			row = intersection.x
 			column = intersection.y
-			print("intersection: " + str(intersection.light))
 			if "green" in intersection.light:
 				index = intersection.light.index("green")
 				green_segment = intersection.cross_road_segments[index]
@@ -33,15 +31,15 @@ class Visualize:
 					mat[row][column] += "--"
 				else:
 					mat[row][column] += "|"
-				print(get_orientation(green_segment))
 			else:
 				mat[row][column] += "X"
 
 		#print
 		for ray in mat:
-			print(ray)
+			output_row = format_row(ray)
+			print(output_row)
 			if(open_file != None):
-				open_file.write(str(ray) + "\n")
+				open_file.write(output_row + "\n")
 		if(open_file != None):
 			open_file.write("-" * (square_size * 4) + "\n")
 
@@ -53,3 +51,15 @@ def get_orientation(road_segment):
 		return "vertical"
 	else:
 		raise Exception("error: road segment not horizontal or vertical")
+
+def format_row(mat_row):
+	output_str = ""
+	for val in mat_row:
+		if(val == ""):
+			output_str += "  "
+		else:
+			if len(val) == 1:
+				output_str += val + " "
+			else:
+				output_str += val
+	return output_str
